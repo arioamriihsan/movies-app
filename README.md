@@ -1,3 +1,10 @@
+# Hot to run locally
+1. clone this project
+2. make sure your computer connection are stable
+3. run 'npm install' in your terminal
+4. run 'npm start'
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
