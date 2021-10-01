@@ -1,13 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Provider } from 'react-redux';
+import ReduxThunk from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
+import reducers from './redux/RootReducer';
+
+const store = configureStore({
+  reducer : reducers,
+  middleware : [ReduxThunk],
+  devTools : true
+});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root')
 );
 
