@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch, useSelector } from "react-redux";
+import { getDetails, clearMovieDetails } from "../redux/MovieReducer";
 import { useMovieContext } from "../components/MovieContext";
-import { API_URL } from "../support/api";
 
 const DetailMovie = () => {
   const [detail, setDetail] = useState(null);
   const { id } = useParams();
+  const dispatch = useDispatch();
+
+  const gMovieDetails = useSelector(state => state.movieReducer.movieDetails);
   
   // Context
   const movieContext = useMovieContext();
@@ -16,18 +19,22 @@ const DetailMovie = () => {
     };
   }, [movieContext]);
 
-  let {setIsDetail} = movieProps;
+  let { setIsDetail } = movieProps;
 
   useEffect(() => {
-    axios.get(`${API_URL}&i=${id}&plot=full`)
-    .then(resp => {
-      setDetail(resp.data);
-    })
-    .catch(err => window.alert(err));
-
+    dispatch(getDetails(id));
     setIsDetail(true);
+
+    return () => {
+      dispatch(clearMovieDetails());
+    }
   }, []);
   
+  useEffect(() => {
+    if (gMovieDetails) {
+      setDetail(gMovieDetails);
+    }
+  }, [gMovieDetails]);
 
   if (!detail) {
     return (

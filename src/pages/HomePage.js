@@ -5,27 +5,15 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-// import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { MovieList } from "../components";
 import axios from 'axios';
 import { API_URL } from '../support/api';
 import { useMovieContext } from "../components/MovieContext";
-// import { fetchMovies } from '../redux/MovieReducer';
 
 const HomePage = () => {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState('');
-  // const [movieData, setMovieData] = useState([]);
-
-  // const dispatch = useDispatch();
-
-  // const { movies, hasMore } = useSelector(
-  //   (state) => ({ 
-  //     movies: state.movieReducer.movieList,
-  //     hasMore: state.movieReducer.hasMore
-  //   }),
-  //   shallowEqual
-  // );
+  const [movieData, setMovieData] = useState([]);
 
   // Context
   const movieContext = useMovieContext();
@@ -72,6 +60,12 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
+    if (movies.length > 0) {
+      setMovieData(movies);
+    }
+  }, [movies]);
+
+  useEffect(() => {
     if (!search) {
       setSearch('batman');
     }
@@ -88,6 +82,7 @@ const HomePage = () => {
       cancelToken: new axios.CancelToken((c) => (cancel = c)),
     })
       .then((resp) => {
+        console.log(resp.data);
         if (resp.data.Search) {
           setMovies(prevMovies => {
             return [...prevMovies, ...resp.data.Search.map(el => el)];
@@ -108,15 +103,14 @@ const HomePage = () => {
         return window.alert(err);
       });
     return () => cancel();
-    // dispatch(fetchMovies(search, page));
   }, [search, page]);
   
   return (
     <div className="app-container">
       <div className="d-flex flex-row flex-wrap justify-content-center align-items-center">
-        {movies.length > 0 ? (
+        {movieData.length > 0 ? (
           <MovieList
-            movies={movies}
+            movies={movieData}
             lastMovieElementRef={lastMovieElementRef}
           />
         ) : (

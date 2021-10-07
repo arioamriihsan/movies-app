@@ -4,10 +4,8 @@ import { API_URL } from '../support/api';
 
 const initialState = {
   loading: false,
-  movieList: [],
-  suggestion: [],
-  hasMore: false,
-  error: ''
+  movieDetails: null,
+  error: ""
 };
 
 const { actions, reducer } = createSlice({
@@ -17,22 +15,13 @@ const { actions, reducer } = createSlice({
     startCall: (state) => {
       state.loading = true;
     },
-    moviesFetched: (state, action) => {
+    setMovieDetails: (state, action) => {
+      state.error = initialState.error;
       state.loading = false;
-      state.movieList = action.payload;
+      state.movieDetails = action.payload;
     },
-    suggestionFetched: (state, action) => {
-      state.loading = false;
-      state.suggestion = [action.payload];
-    },
-    hasMoreList: (state) => {
-      state.hasMore = true
-    },
-    clearMovieList: (state) => {
-      state.movieList = initialState.movieList;
-    },
-    clearMovieSuggestion: (state) => {
-      state.suggestion = initialState.suggestion;
+    clearMovieDetails: (state) => {
+      state.movieDetails = initialState.movieDetails;
     },
     catchError: (state, action) => {
       state.loading = false;
@@ -45,42 +34,18 @@ export default reducer;
 
 export const { 
   startCall,
-  moviesFetched,
-  suggestionFetched,
-  hasMoreList,
-  clearMovieList,
-  clearMovieSuggestion,
+  setMovieDetails,
+  clearMovieDetails,
   catchError
 } = actions;
 
-export const fetchMovies = (search, page) => async (dispatch) => {
+export const getDetails = (id) => async (dispatch) => {
   dispatch(actions.startCall());
   try {
-    let cancel;
-    let { data } = await axios({
-      method: 'GET',
-      url: API_URL,
-      params: { s: search, page },
-      cancelToken: new axios.CancelToken((c) => (cancel = c))
-    });
-    
-    if (data.Search) {
-      dispatch(actions.moviesFetched(data.Search));
-      
-      if (search && search !== 'batman') {
-        dispatch(actions.suggestionFetched(data.Search));
-      }
-      dispatch(actions.hasMoreList(data.Search.length > 0));
-    }
-
-    if(data.Error) {
-      dispatch(actions.catchError(data.Error));
-    }
-    return () => cancel();
-  } catch (err) {
-    if (axios.isCancel(err)) {
-      return;
-    }
-    return window.alert(err);
+    let { data } = await axios.get(`${API_URL}&i=${id}&plot=full`);
+    dispatch(actions.setMovieDetails(data));
+  } catch (error) {
+    dispatch(actions.catchError());
+    window.alert(error);
   }
 }
